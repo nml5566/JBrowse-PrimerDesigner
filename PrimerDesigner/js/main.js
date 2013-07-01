@@ -334,7 +334,6 @@ return declare( JBrowsePlugin,
 	for (var p in params) {
 	    content[p] = params[p];
 	}
-	console.log(content.PRIMER_PRODUCT_SIZE_RANGE);
 	dojo.xhrPost({
 	    url: url,
 	    handleAs: 'json',
