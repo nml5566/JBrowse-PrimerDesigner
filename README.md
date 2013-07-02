@@ -8,13 +8,14 @@ Written by Nathan Liles (nml5566@gmail.com)
 
 PrimerDesginer designs primers for a highlighted region's DNA sequence.
 
-This plugin is very alpha at the moment.
+This plugin is very alpha. 
 
 Prerequisites
 -------------
 # Bio::PrimerDesigner
-Bio::PrimerDesigner is a perl module frontend for primer3. 
+Bio::PrimerDesigner is a perl module frontend for primer3.
 It can be installed via CPAN:
+
     sudo cpan Bio::PrimerDesigner
 
 # primer3 (1.14 or older)
