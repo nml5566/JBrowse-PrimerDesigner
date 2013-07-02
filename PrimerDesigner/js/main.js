@@ -40,10 +40,33 @@ return declare( JBrowsePlugin,
 	    PRIMER_MAX_POLY_X: "5",
 	};
 
+	dojo.subscribe("/jbrowse/v1/n/globalHighlightChanged", function () {
+		that.setPrimerSizeRange();
+	});
 	
 	args.browser.afterMilestone('completely initialized', function () {
 	    that.addMenu();
 	});
+
+    },
+    setPrimerSizeRange: function () {
+	var hl = this.browser.getHighlight();
+
+	if (hl === null) {
+	    return;
+	} else if (this.params.PRIMER_PRODUCT_SIZE_RANGE == "") {
+	    //Set the default product size range for highlighted region if
+	    //none already specified
+	    var min_size = hl.end - hl.start;
+	    var max_size = min_size + 300/*maxrange*/;
+
+	    var x = [];
+	    var sizes = [min_size, max_size];
+	    for (i=0;i < sizes.length;i++) {
+		x.push(Math.floor(sizes[i]/50.0) * 50);
+	    }
+	    this.params.PRIMER_PRODUCT_SIZE_RANGE = x[0]+'-'+x[1];
+	}
 
     },
     addMenu: function () {
@@ -177,20 +200,7 @@ return declare( JBrowsePlugin,
 	    name: "PRIMER_PRODUCT_SIZE_RANGE", 
 	    innerHTML: "<b>Primer size range:</b>" }, r4c1);
 	var r4c2 = dojo.create("td", null, row4);
-       /* var hl = this.browser.getHighlight();*/
-	//if (hl !== null) {
-	    ////var min_size = hl.end - hl.start;
-	    //var min_size = hl.end - hl.start + 40;
-	    //var max_size = min_size + 300[>maxrange<];
 
-	    //var x = [];
-	    //var sizes = [min_size, max_size];
-	    //for (i=0;i < sizes.length;i++) {
-		//x.push(Math.floor(sizes[i]/50.0) * 50);
-		////x.push(Math.ceil(sizes[i]/50.0) * 50);
-	    //}
-	    //p.PRIMER_PRODUCT_SIZE_RANGE = x[0]+'-'+x[1];
-	/*} else { p.PRIMER_PRODUCT_SIZE_RANGE = "" }*/
 	dojo.create("input", { type: "text", id: "product_size_range",
 	    name: "PRIMER_PRODUCT_SIZE_RANGE", 
 	    value: p.PRIMER_PRODUCT_SIZE_RANGE, size: "8" }, r4c2);
@@ -284,18 +294,10 @@ return declare( JBrowsePlugin,
 	if (hl === null) {
 	    alert('Highlight a region before designing primers');
 	    return;
-	} else if (this.params.PRIMER_PRODUCT_SIZE_RANGE == "") {
-	    //Set the default product size range for highlighted region if
-	    //none already specified
-	    var min_size = hl.end - hl.start + 40;
-	    var max_size = min_size + 300/*maxrange*/;
-
-	    var x = [];
-	    var sizes = [min_size, max_size];
-	    for (i=0;i < sizes.length;i++) {
-		x.push(Math.floor(sizes[i]/50.0) * 50);
-	    }
-	    this.params.PRIMER_PRODUCT_SIZE_RANGE = x[0]+'-'+x[1];
+	} else {
+	    //Set 2x (here & at construction) b/c it's possible to highlight
+	    //via url parameters only and bypass the javascript hook entirely
+	    this.setPrimerSizeRange();
 	}
 
 	browser.loadRefSeqs().then( function () {
@@ -365,7 +367,7 @@ return declare( JBrowsePlugin,
 
 	var confs = [{
 	    key: "Primers for "+f.seq_id+':'+f.start+'..'+f.end,
-	    label: "Primers for "+f.seq_id+':'+f.start+'..'+f.end,
+	    label: data.dir, /* unique label */
 	    store: this._makeStoreConfs(data),
 	    style: {
 		"labelScale": "0", 
