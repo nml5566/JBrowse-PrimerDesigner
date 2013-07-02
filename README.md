@@ -13,8 +13,8 @@ This plugin is very alpha at the moment.
 Prerequisites
 -------------
 # Bio::PrimerDesigner
-Bio::PrimerDesigner is a perl module frontend for primer3. It can be installed
-via CPAN
+Bio::PrimerDesigner is a perl module frontend for primer3. 
+It can be installed via CPAN:
     sudo cpan Bio::PrimerDesigner
 
 # primer3 (1.14 or older)
