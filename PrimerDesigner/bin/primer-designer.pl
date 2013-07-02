@@ -120,7 +120,10 @@ sub primer_results {
   $raw_output =~ s/^(SEQUENCE=\w{25}).+$/$1... \(truncated for display only\)/m;
 
   # Give up if primer3 failed
-  fatal_error("No primers found:".pre($raw_output)) unless $res->left;
+  unless ($res->left) {
+    $raw_output =~ s/([A-Z,_]+=)/<br>$1/g;
+    fatal_error("No primers found:$raw_output") 
+  }
 
   my @attributes = qw/ left right startleft startright tmleft tmright
       qual lqual rqual leftgc rightgc lselfany lselfend rselfany rselfend/;
