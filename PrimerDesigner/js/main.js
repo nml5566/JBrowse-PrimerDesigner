@@ -22,6 +22,7 @@ return declare( JBrowsePlugin,
 	this.location = args.location;
 	this.GFF3Driver = GFF3Driver;
 	this.params = {
+	    user_set: false,
 	    PRIMER_MIN_SIZE: "18",
 	    PRIMER_OPT_SIZE: "20",
 	    PRIMER_MAX_SIZE: "27",
@@ -50,13 +51,19 @@ return declare( JBrowsePlugin,
 
     },
     setPrimerSizeRange: function () {
+	console.log('setting primer range');
 	var hl = this.browser.getHighlight();
 
-	if (hl === null) {
+	if (hl === null ) {
+	    //console.log('clearing primer range');
+	    //this.params.PRIMER_PRODUCT_SIZE_RANGE = "";
 	    return;
-	} else if (this.params.PRIMER_PRODUCT_SIZE_RANGE == "") {
-	    //Set the default product size range for highlighted region if
-	    //none already specified
+	} else if (this.params.PRIMER_PRODUCT_SIZE_RANGE == ""
+	    || this.params.user_set === false) {
+	    /* reset user modification flag when range is blank */
+	    this.params.user_set = false;
+
+	    /* Set default product size range for highlighted region if */
 	    var min_size = hl.end - hl.start;
 	    var max_size = min_size + 300/*maxrange*/;
 
@@ -66,6 +73,10 @@ return declare( JBrowsePlugin,
 		x.push(Math.floor(sizes[i]/50.0) * 50);
 	    }
 	    this.params.PRIMER_PRODUCT_SIZE_RANGE = x[0]+'-'+x[1];
+
+	    console.log('primer range now '+this.params.PRIMER_PRODUCT_SIZE_RANGE);
+	} else {
+	    console.log('no change');
 	}
 
     },
@@ -252,6 +263,10 @@ return declare( JBrowsePlugin,
 	for (var i = 0; i < attr.length; i++) {
 	    params[attr[i].name] = attr[i].value;
 	}
+
+	/* flag when user changes settings so they don't get overwritten */
+	params.user_set = true;
+
         settingsPane.hide();
     },
     getParams: function () {
