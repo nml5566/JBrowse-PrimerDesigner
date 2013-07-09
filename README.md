@@ -6,9 +6,9 @@ About
 PrimerDesigner plugin for JBrowse
 Written by Nathan Liles (nml5566@gmail.com)
 
-PrimerDesginer designs primers for a highlighted region's DNA sequence.
+PrimerDesigner displays primers for a highlighted region's DNA sequence.
 
-This plugin is very alpha. 
+This plugin is very alpha.
 
 Prerequisites
 -------------
