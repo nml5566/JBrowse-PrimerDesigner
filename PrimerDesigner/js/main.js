@@ -5,6 +5,8 @@ define([
            'dijit/MenuItem',
            'dijit/Dialog',
            'dijit/form/Button',
+           'dojo/query',
+           'dojo/dom'
 	],
        function(
            declare,
@@ -12,7 +14,9 @@ define([
            GFF3Driver,
            dijitMenuItem,
            dijitDialog,
-           dijitButton
+           dijitButton,
+           dojoQuery,
+           dom
        ) {
 return declare( JBrowsePlugin,
 {
@@ -44,22 +48,20 @@ return declare( JBrowsePlugin,
 	dojo.subscribe("/jbrowse/v1/n/globalHighlightChanged", function () {
 		that.setPrimerSizeRange();
 	});
-	
+
 	args.browser.afterMilestone('completely initialized', function () {
 	    that.addMenu();
 	});
 
     },
     setPrimerSizeRange: function () {
-	console.log('setting primer range');
 	var hl = this.browser.getHighlight();
 
 	if (hl === null ) {
-	    //console.log('clearing primer range');
-	    //this.params.PRIMER_PRODUCT_SIZE_RANGE = "";
 	    return;
 	} else if (this.params.PRIMER_PRODUCT_SIZE_RANGE == ""
 	    || this.params.user_set === false) {
+
 	    /* reset user modification flag when range is blank */
 	    this.params.user_set = false;
 
@@ -74,11 +76,7 @@ return declare( JBrowsePlugin,
 	    }
 	    this.params.PRIMER_PRODUCT_SIZE_RANGE = x[0]+'-'+x[1];
 
-	    console.log('primer range now '+this.params.PRIMER_PRODUCT_SIZE_RANGE);
-	} else {
-	    console.log('no change');
-	}
-
+	} 
     },
     addMenu: function () {
     	var that = this;
@@ -320,15 +318,15 @@ return declare( JBrowsePlugin,
 
 		browser.getStore('refseqs', function (store) {
 
-		    var query = {
+		    var region = {
 			ref: hl.ref,
 			start: hl.start,
 			end: hl.end
 		    }
 
-		    // @args: query, featureCallback, finishCallback,
+		    // @args: region, featureCallback, finishCallback,
 		    // errorCallback
-		    store.getFeatures(query, function(f) {
+		    store.getFeatures(region, function(f) {
 		    /* iterate feats */
 			that._designPrimers(f);
 		    }, function () {
@@ -382,20 +380,24 @@ return declare( JBrowsePlugin,
 
 	var confs = [{
 	    key: "Primers for "+f.seq_id+':'+f.start+'..'+f.end,
+	    //label: "Primers for "+f.seq_id+':'+f.start+'..'+f.end,
 	    label: data.dir, /* unique label */
 	    store: this._makeStoreConfs(data),
 	    style: {
+		//"className": "primerfeature",
 		"labelScale": "0", 
-		"label": function(feature) { 
-		    return 'PCR primer set '+feature.get('id')+' (click for report)' 
-		},
+		//"label": function(feature) { 
+		    //return 'PCR primer set '+feature.get('id')+' (click for report)' 
+		//}
 	    },
 	    description: 1,
 	    onClick: {   
 		"label": "PRIMER3-style report for set {name}", 
 		"url": this.location+"/"+data.dir+"/report_{name}.html"
 	    },
-	    type: "JBrowse/View/Track/HTMLFeatures"
+	    //type: "JBrowse/View/Track/HTMLFeatures"
+	    type: "PrimerDesigner/PrimerFeatures"
+	    //type: "JBrowse/View/Track/CanvasFeatures"
 	}];
 
 	dojo.forEach( confs, function( conf ) {
@@ -406,9 +408,30 @@ return declare( JBrowsePlugin,
 		conf.store = name;
 	    }
 	},this.browser);
-	
+
+	//console.log(this.browser);
+
+	//dojo.subscribe("/jbrowse/v1/v/tracks/show", function () {
+	//}).then( function() {
+       /* this.browser.afterMilestone('loadConfig', function () {*/
+	    //console.log('config loaded');
+	    //dojo.query(".primerfeature").forEach(function(node) {
+		//console.log(node);
+	    //});
+	//}).then(function () {
+	    //console.log('after config loaded');
+	    //dojo.query(".feature").forEach(function(node) {
+		//console.log(node);
+	    //});
+
+	/*});*/
+
+
 	dojo.publish("/jbrowse/v1/v/tracks/new", [confs]);
 	dojo.publish("/jbrowse/v1/v/tracks/show", [confs]);
+	//dojo.publish("/jbrowse/v1/v/tracks/delete", [confs]);
+	//dojo.publish("/jbrowse/v1/v/tracks/show", [confs]);
+
 
     },
     _makeURL: function( subpath, query ) {
