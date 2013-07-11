@@ -1,5 +1,5 @@
 //define( "JBrowse/View/Track/PrimerFeatures", [
-define( "PrimerDesigner/PrimerFeatures", [
+define( "PrimerDesigner/View/Track/Features", [
             'dojo/_base/declare',
             'dojo/_base/lang',
             'dojo/_base/array',
@@ -51,7 +51,7 @@ var PrimerFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDet
      *   when the track's data is loaded and ready
      * @param args.trackPadding {Number} distance in px between tracks
      */
-    constructor: function( args ) {
+    constructor: function( args ) { /*NML: necessary*/
         //number of histogram bins per block
         this.numBins = 25;
         this.histLabel = false;
@@ -81,7 +81,7 @@ var PrimerFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDet
      * Returns object holding the default configuration for HTML-based feature tracks.
      * @private
      */
-    _defaultConfig: function() {
+    _defaultConfig: function() { /* NML: necessary */
         return {
             maxFeatureScreenDensity: 0.5,
 
@@ -91,8 +91,8 @@ var PrimerFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDet
             style: {
                 arrowheadClass: 'transcript-arrowhead',
 
-                //className: "primerfeature",
-                className: "feature2",
+		className: "primerfeature",
+                //className: "feature2",
 
                 // not configured by users
                 _defaultHistScale: 4,
@@ -103,10 +103,9 @@ var PrimerFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDet
                 maxDescriptionLength: 70,
                 showLabels: true ,
 		label: function(feature) { 
-		    return 'PCR primer set '+feature.get('id')+' (click for report)';
+		    return 'PCR primer set '+feature.get('id')
+		    +' <span style="color:blue">(click for report)</span>';
 		},
-
-                description: 'note, description',
 
                 centerChildrenVertically: true  // by default use feature child centering
             },
@@ -115,94 +114,20 @@ var PrimerFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDet
                     return document.createElement('div');
                 }
             },
-            events: {},
-            menuTemplate: [
-                { label: 'View details',
-                  title: '{type} {name}',
-                  action: 'contentDialog',
-                  iconClass: 'dijitIconTask',
-                  content: dojo.hitch( this, 'defaultFeatureDetail' )
-                }
-            ]
+            events: {}
         };
     },
 
-    /**
-     * Make life easier for event handlers by handing them some things
-     */
-    wrapHandler: function(handler) {
-        var track = this;
-        return function(event) {
-            event = event || window.event;
-            if (event.shiftKey) return;
-            var elem = (event.currentTarget || event.srcElement);
-            //depending on bubbling, we might get the subfeature here
-            //instead of the parent feature
-            if (!elem.feature) elem = elem.parentElement;
-            if (!elem.feature) return; //shouldn't happen; just bail if it does
-            handler(track, elem, elem.feature, event);
-        };
-    },
-
-    endZoom: function(destScale, destBlockBases) {
+    endZoom: function(destScale, destBlockBases) { /* NML: necessary */
         this.clear();
     },
 
-    updateStaticElements: function( coords ) {
+    updateStaticElements: function( coords ) { /* NML: necessary */
         this.inherited( arguments );
-        this.updateYScaleFromViewDimensions( coords );
         this.updateFeatureLabelPositions( coords );
-        this.updateFeatureArrowPositions( coords );
     },
 
-    updateFeatureArrowPositions: function( coords ) {
-        if( ! 'x' in coords )
-            return;
-
-	var viewmin = this.browser.view.minVisible();
-	var viewmax = this.browser.view.maxVisible();
-
-        array.forEach( this.blocks, function( block ) {
-            if( ! block )
-                return;
-
-            dojo.query('> .feature', block.domNode )
-                .forEach(
-                    function(featDiv) {
-                        var feature = featDiv.feature;
-                        var strand  = feature.get('strand');
-                        if( ! strand )
-                            return;
-
-                        var fmin    = feature.get('start');
-                        var fmax    = feature.get('end');
-                        var arrowhead;
-
-                        // minus strand
-                        if( strand < 0 && fmax > viewmin ) {
-                            dojo.query( '> .minus-'+this.config.style.arrowheadClass, featDiv )
-                                .forEach( function( arrowhead ) {
-                                              arrowhead.style.left =
-                                                  ( fmin < viewmin ? block.bpToX( viewmin ) - block.bpToX( fmin )
-                                                                   : -this.minusArrowWidth
-                                                  ) + 'px';
-                                          }, this );
-                        }
-                        // plus strand
-                        else if( strand > 0 && fmin < viewmax ) {
-                            dojo.query( '> .plus-'+this.config.style.arrowheadClass, featDiv )
-                                .forEach( function( arrowhead ) {
-                                              arrowhead.style.right =
-                                                  ( fmax > viewmax ? block.bpToX( fmax ) - block.bpToX( viewmax )
-                                                                   : -this.plusArrowWidth
-                                                  ) + 'px';
-                                          }, this );
-                        }
-                    },this);
-        },this);
-    },
-
-    updateFeatureLabelPositions: function( coords ) {
+    updateFeatureLabelPositions: function( coords ) { /* NML: necessary */
         if( ! 'x' in coords )
             return;
 
@@ -245,7 +170,7 @@ var PrimerFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDet
         },this);
     },
 
-   fillBlock: function( args ) {
+   fillBlock: function( args ) { /* NML: necessary */
 	var blockIndex = args.blockIndex;
 	var block = args.block;
 	var leftBase = args.leftBase;
@@ -274,8 +199,6 @@ var PrimerFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDet
 		    this._updatedLabelForBlockSize = blockBases;
 		}
 
-		// console.log(this.name+" scale: %d, density: %d, histScale: %d, screenDensity: %d", scale, stats.featureDensity, this.config.style.histScale, stats.featureDensity / scale );
-
 		// if we our store offers density histograms, and we are zoomed out far enough, draw them
 		if( this.store.getRegionFeatureDensities && scale < histScale ) {
 		    this.fillHist( args );
@@ -294,7 +217,7 @@ var PrimerFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDet
 		else {
 		    // if we have transitioned to viewing features, delete the
 		    // y-scale used for the histograms
-		    this._removeYScale();
+		    //this._removeYScale();
 		    this.fillFeatures( dojo.mixin( {stats: stats}, args ) );
 		}
 	}),
@@ -302,128 +225,9 @@ var PrimerFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDet
 	);
     },
 
-    /**
-     * Creates a Y-axis scale for the feature histogram.  Must be run after
-     * the histogram bars are drawn, because it sometimes must use the
-     * track height to calculate the max value if there are no explicit
-     * histogram stats.
-     * @param {Number} blockSizeBp the size of the blocks in base pairs.
-     * Necessary for calculating histogram stats.
-     */
-/*    makeHistogramYScale: function( blockSizeBp, histData ) {*/
-        //var dims = this._histDimensions( blockSizeBp, histData.stats );
-        //if( dims.logScale ) {
-            //console.error("Log histogram scale axis labels not yet implemented.");
-            //return;
-        //}
-        //var maxval = this.height/dims.pxPerCount;
-        //maxval = dims.logScale ? log(maxval) : maxval;
-
-        //// if we have a scale, and it has the same characteristics
-        //// (including pixel height), don't redraw it.
-        //if( this.yscale && this.yscale_params
-            //&& this.yscale_params.maxval == maxval
-            //&& this.yscale_params.height == this.height
-            //&& this.yscale_params.blockbp == blockSizeBp
-          //) {
-              //return;
-          //} else {
-              //this._removeYScale();
-              //this.makeYScale({ min: 0, max: maxval });
-              //this.yscale_params = {
-                  //height: this.height,
-                  //blockbp: blockSizeBp,
-                  //maxval: maxval
-              //};
-          //}
-    /*},*/
-
-    /**
-     * Delete the Y-axis scale if present.
-     * @private
-     */
-    _removeYScale: function() {
-        if( !this.yscale ) {
-            dojo.query( '.ruler', this.div ).orphan();
-            return;
-        }
-        this.yscale.parentNode.removeChild( this.yscale );
-        delete this.yscale_params;
-        delete this.yscale;
-    },
-
     destroy: function() {
         this._clearLayout();
         this.inherited(arguments);
-    },
-
-    cleanupBlock: function(block) {
-        if( block ) {
-            // discard the layout for this range
-            if ( this.layout )
-                this.layout.discardRange( block.startBase, block.endBase );
-
-            if( block.featureNodes )
-                for( var name in block.featureNodes ) {
-                    var featDiv = block.featureNodes[name];
-                    array.forEach(
-                        'track,feature,callbackArgs,_labelScale,_descriptionScale'.split(','),
-                        function(a) { Util.removeAttribute( featDiv, a ); }
-                    );
-                    if( 'label' in featDiv ) {
-                        array.forEach(
-                            'track,feature,callbackArgs'.split(','),
-                            function(a) { Util.removeAttribute( featDiv.label, a ); }
-                        );
-                        Util.removeAttribute( featDiv, 'label' );
-                    }
-                }
-        }
-
-        this.inherited( arguments );
-    },
-
-    /**
-     * Called when sourceBlock gets deleted.  Any child features of
-     * sourceBlock that extend onto destBlock should get moved onto
-     * destBlock.
-     */
-    transfer: function(sourceBlock, destBlock, scale, containerStart, containerEnd) {
-
-        if (!(sourceBlock && destBlock)) return;
-
-        var destLeft = destBlock.startBase;
-        var destRight = destBlock.endBase;
-        var blockWidth = destRight - destLeft;
-        var sourceSlot;
-
-        var overlaps = (sourceBlock.startBase < destBlock.startBase)
-            ? sourceBlock.rightOverlaps
-            : sourceBlock.leftOverlaps;
-        overlaps = overlaps || [];
-
-        for (var i = 0; i < overlaps.length; i++) {
-            //if the feature overlaps destBlock,
-            //move to destBlock & re-position
-            sourceSlot = sourceBlock.featureNodes[ overlaps[i] ];
-            if ( sourceSlot && sourceSlot.label && sourceSlot.label.parentNode ) {
-                sourceSlot.label.parentNode.removeChild(sourceSlot.label);
-            }
-            if (sourceSlot && sourceSlot.feature) {
-                if ( sourceSlot.layoutEnd > destLeft
-                     && sourceSlot.feature.get('start') < destRight ) {
-
-                         sourceSlot.parentNode.removeChild(sourceSlot);
-
-                         delete sourceBlock.featureNodes[ overlaps[i] ];
-
-                         /* feature render, adding to block, centering refactored into addFeatureToBlock() */
-                         this.addFeatureToBlock( sourceSlot.feature, overlaps[i],
-                                                 destBlock, scale, sourceSlot._labelScale, sourceSlot._descriptionScale,
-                                                 containerStart, containerEnd );
-                     }
-            }
-        }
     },
 
     /**
@@ -437,7 +241,7 @@ var PrimerFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDet
      * @param args.containerStart don't make HTML elements extend further left than this
      * @param args.containerEnd don't make HTML elements extend further right than this. 0-based.
      */
-    fillFeatures: function(args) {
+    fillFeatures: function(args) { /* NML: necessary */
         var blockIndex = args.blockIndex;
         var block = args.block;
         var leftBase = args.leftBase;
@@ -458,7 +262,7 @@ var PrimerFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDet
             this.haveMeasurements = true;
         }
 
-        var labelScale       = this.config.style.labelScale       || stats.featureDensity * this.config.style._defaultLabelScale;
+        var labelScale       = 0;
         var descriptionScale = this.config.style.descriptionScale || stats.featureDensity * this.config.style._defaultDescriptionScale;
 
         var curTrack = this;
@@ -495,7 +299,7 @@ var PrimerFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDet
      *  Overridable by subclasses that need more control over the substructure.
      */
     addFeatureToBlock: function( feature, uniqueId, block, scale, labelScale, descriptionScale,
-                                 containerStart, containerEnd ) {
+                                 containerStart, containerEnd ) { /* NML: necessary */
         var featDiv = this.renderFeature( feature, uniqueId, block, scale, labelScale, descriptionScale,
                                           containerStart, containerEnd );
         if( ! featDiv )
@@ -508,7 +312,7 @@ var PrimerFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDet
     },
 
 
-    fillBlockTimeout: function( blockIndex, block ) {
+    fillBlockTimeout: function( blockIndex, block ) { /* NML: necessary */
         this.inherited( arguments );
         block.featureNodes = {};
     },
@@ -518,7 +322,7 @@ var PrimerFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDet
      * Returns true if a feature is visible and rendered someplace in the blocks of this track.
      * @private
      */
-    _featureIsRendered: function( uniqueId ) {
+    _featureIsRendered: function( uniqueId ) { /* NML: necessary */
         var blocks = this.blocks;
         for( var i=0; i<blocks.length; i++ ) {
             if( blocks[i] && blocks[i].featureNodes && blocks[i].featureNodes[uniqueId])
@@ -574,28 +378,7 @@ var PrimerFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDet
         }
     },
 
-    getFeatDiv: function( feature )  {
-        var id = this.getId( feature );
-        if( ! id )
-            return null;
-
-        for( var i = 0; i < this.blocks.length; i++ ) {
-            var b = this.blocks[i];
-            if( b && b.featureNodes ) {
-                var f = b.featureNodes[id];
-                if( f )
-                    return f;
-            }
-        }
-
-        return null;
-    },
-
-    getId: function( f ) {
-        return f.id();
-    },
-
-    renderFeature: function( feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd ) {
+    renderFeature: function( feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd ) { /* NML: necessary */
         //featureStart and featureEnd indicate how far left or right
         //the feature extends in bp space, including labels
         //and arrowheads if applicable
@@ -617,8 +400,9 @@ var PrimerFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDet
         //     For WebApollo we're keeping arrow outside of feature genome coord bounds,
         //           because otherwise arrow can obscure edge-matching, CDS/UTR transitions, small inton/exons, etc.
         //     Would like to implement arrowhead change in WebApollo plugin, but would need to refactor HTMLFeature more to allow for that
+
         if (this.config.style.arrowheadClass) {
-            switch (feature.get('strand')) {
+	    switch (feature.get('strand')) {
             case 1:
             case '+':
                 layoutEnd   += (this.plusArrowWidth / scale); break;
@@ -639,7 +423,7 @@ var PrimerFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDet
 
         // add the label div (which includes the description) to the
         // calculated height of the feature if it will be displayed
-        if( this.showLabels && scale >= labelScale && name ) {
+	if( this.showLabels && scale >= labelScale && name ) {
             layoutEnd = Math.max(layoutEnd, layoutStart + (''+name).length * this.labelWidth / scale );
             levelHeight += this.labelHeight + this.labelPad;
         }
@@ -781,14 +565,12 @@ var PrimerFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDet
             labelDiv.callbackArgs = [ this, featDiv.feature, featDiv ];
         }
 
-        if( featwidth > this.config.style.minSubfeatureWidth ) {
-            this.handleSubFeatures(feature, featDiv, displayStart, displayEnd, block);
-        }
+	this.renderArrows(feature, featDiv, displayStart, displayEnd, block);
 
         // render the popup menu if configured
-        if( this.config.menuTemplate ) {
-            window.setTimeout( dojo.hitch( this, '_connectMenus', featDiv ), 50+Math.random()*150 );
-        }
+        //if( this.config.menuTemplate ) {
+            //window.setTimeout( dojo.hitch( this, '_connectMenus', featDiv ), 50+Math.random()*150 );
+        //}
 
         if ( typeof this.config.hooks.modify == 'function' ) {
             this.config.hooks.modify(this, feature, featDiv);
@@ -797,16 +579,27 @@ var PrimerFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDet
         return featDiv;
     },
 
-    handleSubFeatures: function( feature, featDiv,
+    // Draw the arrows on either side of the primer glyph
+    renderArrows: function( feature, featDiv,
                                  displayStart, displayEnd, block )  {
-        var subfeatures = feature.get('subfeatures');
-        if( subfeatures ) {
-            for (var i = 0; i < subfeatures.length; i++) {
-                this.renderSubfeature( feature, featDiv,
-                                      subfeatures[i],
-                                      displayStart, displayEnd, block );
-            }
-        }
+
+	var rightArrowDiv = document.createElement("div");
+        dojo.addClass(rightArrowDiv, "minus-transcript-arrowhead");
+
+	var leftArrowDiv = document.createElement("div");
+        dojo.addClass(leftArrowDiv, "plus-transcript-arrowhead");
+
+	var viewmin = this.browser.view.minVisible();
+	var viewmax = this.browser.view.maxVisible();
+
+	var fmin    = feature.get('start');
+	var fmax    = feature.get('end');
+
+	leftArrowDiv.style.left = -this.minusArrowWidth + 'px';
+	rightArrowDiv.style.right = -this.plusArrowWidth + 'px';
+
+        featDiv.appendChild(leftArrowDiv);
+        featDiv.appendChild(rightArrowDiv);
     },
 
     /**
@@ -864,115 +657,6 @@ var PrimerFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDet
             div.setAttribute( 'title', this.eventHandlers.click.label );
     },
 
-    _connectMenus: function( featDiv ) {
-        // don't actually make the menu until the feature is
-        // moused-over.  pre-generating menus for lots and lots of
-        // features at load time is way too slow.
-        var refreshMenu = lang.hitch( this, '_refreshMenu', featDiv );
-        this.own( on( featDiv,  'mouseover', refreshMenu ) );
-        if( featDiv.label )
-            this.own( on( featDiv.label,  'mouseover', refreshMenu ) );
-    },
-
-    _refreshMenu: function( featDiv ) {
-        // if we already have a menu generated for this feature,
-        // give it a new lease on life
-        if( ! featDiv.contextMenu ) {
-            featDiv.contextMenu = this._makeFeatureContextMenu( featDiv, this.config.menuTemplate );
-        }
-
-        // give the menu a timeout so that it's cleaned up if it's not used within a certain time
-        if( featDiv.contextMenuTimeout ) {
-            window.clearTimeout( featDiv.contextMenuTimeout );
-        }
-        var timeToLive = 30000; // clean menus up after 30 seconds
-        featDiv.contextMenuTimeout = window.setTimeout( function() {
-            if( featDiv.contextMenu ) {
-                featDiv.contextMenu.destroyRecursive();
-                Util.removeAttribute( featDiv, 'contextMenu' );
-            }
-            Util.removeAttribute( featDiv, 'contextMenuTimeout' );
-        }, timeToLive );
-    },
-
-    /**
-     * Make the right-click dijit menu for a feature.
-     */
-    _makeFeatureContextMenu: function( featDiv, menuTemplate ) {
-        // interpolate template strings in the menuTemplate
-        menuTemplate = this._processMenuSpec(
-            dojo.clone( menuTemplate ),
-            featDiv
-        );
-
-        // render the menu, start it up, and bind it to right-clicks
-        // both on the feature div and on the label div
-        var menu = this._renderContextMenu( menuTemplate, featDiv );
-        menu.startup();
-        menu.bindDomNode( featDiv );
-        if( featDiv.labelDiv )
-            menu.bindDomNode( featDiv.labelDiv );
-
-        return menu;
-    },
-
-    renderSubfeature: function( feature, featDiv, subfeature, displayStart, displayEnd, block ) {
-        var subStart = subfeature.get('start');
-        var subEnd = subfeature.get('end');
-        var featLength = displayEnd - displayStart;
-        var type = subfeature.get('type');
-        var className;
-        if( this.config.style.subfeatureClasses ) {
-            className = this.config.style.subfeatureClasses[type];
-            // if no class mapping specified for type, default to subfeature.get('type')
-            if (className === undefined) { className = type; }
-            // if subfeatureClasses specifies that subfeature type explicitly maps to null className
-            //     then don't render the feature
-            else if (className === null)  {
-                return null;
-            }
-        }
-        else {
-            // if no config.style.subfeatureClasses to specify subfeature class mapping, default to subfeature.get('type')
-            className = type;
-        }
-
-        // a className of 'hidden' causes things to not even be rendered
-        if( className == 'hidden' )
-            return null;
-
-        var subDiv = document.createElement("div");
-        dojo.addClass(subDiv, "subfeature");
-        // check for className to avoid adding "null", "plus-null", "minus-null"
-        if (className) {
-            switch ( subfeature.get('strand') ) {
-            case 1:
-            case '+':
-                dojo.addClass(subDiv, "plus-" + className); break;
-            case -1:
-            case '-':
-                dojo.addClass(subDiv, "minus-" + className); break;
-            default:
-                dojo.addClass(subDiv, className);
-            }
-        }
-
-        // if the feature has been truncated to where it doesn't cover
-        // this subfeature anymore, just skip this subfeature
-        if ( subEnd <= displayStart || subStart >= displayEnd )
-            return null;
-
-        if (Util.is_ie6) subDiv.appendChild(document.createComment());
-
-        subDiv.style.cssText = "left: " + (100 * ((subStart - displayStart) / featLength)) + "%;"
-            + "width: " + (100 * ((subEnd - subStart) / featLength)) + "%;";
-        featDiv.appendChild(subDiv);
-
-        block.featureNodes[ subfeature.id() ] = subDiv;
-
-        return subDiv;
-    },
-
     _getLayout: function( scale ) {
 
         //determine the glyph height, arrowhead width, label text dimensions, etc.
@@ -1012,7 +696,7 @@ var PrimerFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDet
     },
 
     _exportFormats: function() {
-        return [ 'GFF3', 'BED', { name: 'SequinTable', label: 'Sequin Table' } ];
+        return [ 'GFF3', 'BED' ]
     },
 
     _trackMenuOptions: function() {

@@ -177,7 +177,7 @@ sub primer_results {
 
 	my $start = $r{startleft}-20;
 	my $end = $r{startright}+20;
-	print $out join("\t", ($ref,"PrimerDesigner","gene",$start,$end,".",
+	print $out join("\t", ($ref,"PrimerDesigner","primer",$start,$end,".",
 	    ".",0,"ID=$n;Name=$n\n"));
 
 	my $table = table(

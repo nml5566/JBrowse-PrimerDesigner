@@ -380,24 +380,13 @@ return declare( JBrowsePlugin,
 
 	var confs = [{
 	    key: "Primers for "+f.seq_id+':'+f.start+'..'+f.end,
-	    //label: "Primers for "+f.seq_id+':'+f.start+'..'+f.end,
 	    label: data.dir, /* unique label */
 	    store: this._makeStoreConfs(data),
-	    style: {
-		//"className": "primerfeature",
-		"labelScale": "0", 
-		//"label": function(feature) { 
-		    //return 'PCR primer set '+feature.get('id')+' (click for report)' 
-		//}
-	    },
-	    description: 1,
-	    onClick: {   
+   	    onClick: {   
 		"label": "PRIMER3-style report for set {name}", 
 		"url": this.location+"/"+data.dir+"/report_{name}.html"
 	    },
-	    //type: "JBrowse/View/Track/HTMLFeatures"
-	    type: "PrimerDesigner/PrimerFeatures"
-	    //type: "JBrowse/View/Track/CanvasFeatures"
+	    type: "PrimerDesigner/View/Track/Features"
 	}];
 
 	dojo.forEach( confs, function( conf ) {
