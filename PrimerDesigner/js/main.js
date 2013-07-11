@@ -382,6 +382,14 @@ return declare( JBrowsePlugin,
 	    key: "Primers for "+f.seq_id+':'+f.start+'..'+f.end,
 	    label: data.dir, /* unique label */
 	    store: this._makeStoreConfs(data),
+	    style: { 
+		className: "primerfeature",
+		label: function(feature) { 
+		    return 'PCR primer set '+feature.get('id')
+		    +' <span style="color:blue">(click for report)</span>';
+		},
+		labelScale: "0" 
+	    },
    	    onClick: {   
 		"label": "PRIMER3-style report for set {name}", 
 		"url": this.location+"/"+data.dir+"/report_{name}.html"
