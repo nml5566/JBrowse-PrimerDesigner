@@ -34,21 +34,24 @@ var PrimerFeatures = declare( [ HTMLFeatures ], {
 	return featDiv;
     },
 
-    // Draw the arrows on either side of the feature
+    /* Draw arrows on both sides of the feature */
     renderFeatureArrows: function( featDiv )  {
 
+	//Create arrow divs
 	var rightArrowDiv = document.createElement("div");
-        dojo.addClass(rightArrowDiv, "minus-transcript-arrowhead");
-
 	var leftArrowDiv = document.createElement("div");
+	
+	//Add the appropriate class so css will overlay the appropriate 
+	//arrowhead image (look at track_styles.css for more information)
+        dojo.addClass(rightArrowDiv, "minus-transcript-arrowhead");
         dojo.addClass(leftArrowDiv, "plus-transcript-arrowhead");
 
-	var viewmin = this.browser.view.minVisible();
-	var viewmax = this.browser.view.maxVisible();
-
+	//Shift arrow positions the length of their 
+	//width so they align with the feature borders
 	leftArrowDiv.style.left = -this.minusArrowWidth + 'px';
 	rightArrowDiv.style.right = -this.plusArrowWidth + 'px';
 
+	//Add arrows to feature
         featDiv.appendChild(leftArrowDiv);
         featDiv.appendChild(rightArrowDiv);
     },
